@@ -8,7 +8,7 @@ Y="\e[33m" C="\e[36m" B="\e[34m" G="\e[32m" R="\e[31m" P="\e[35m" NC="\e[0m"
 sudo apt update -y && sudo apt upgrade -y
 
 # Установка необходимых утилит
-for pkg in figlet whiptail; do
+for pkg in figlet; do
     command -v $pkg &>/dev/null || sudo apt install -y $pkg
 done
 
@@ -45,20 +45,21 @@ remove_node() {
     echo -e "${G}Удалено!${NC}"
 }
 
-# Запрос действия у пользователя
-echo -e "${Y}Выберите действие:${NC}"
-echo "1 - Установить ноду"
-echo "2 - Проверить статус"
-echo "3 - Проверить поинты"
-echo "4 - Удалить ноду"
-echo "5 - Выход"
-read -p "Введите номер: " CHOICE
+while true; do
+    echo -e "${Y}Выберите действие:${NC}"
+    echo "1 - Установить ноду"
+    echo "2 - Проверить статус"
+    echo "3 - Проверить поинты"
+    echo "4 - Удалить ноду"
+    echo "5 - Выход"
+    read -p "Введите номер: " CHOICE
 
-case $CHOICE in
-    1) install_node ;;
-    2) check_status ;;
-    3) check_points ;;
-    4) remove_node ;;
-    5) exit 0 ;;
-    *) echo -e "${R}Ошибка!${NC}" ;;
-esac
+    case $CHOICE in
+        1) install_node ;;
+        2) check_status ;;
+        3) check_points ;;
+        4) remove_node ;;
+        5) exit 0 ;;
+        *) echo -e "${R}Ошибка! Попробуйте снова.${NC}" ;;
+    esac
+done
