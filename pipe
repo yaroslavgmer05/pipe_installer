@@ -11,6 +11,12 @@ echo -e "${CYAN}Добро пожаловать в установщик ноды
 
 # Функция установки ноды (скачивание бинарного файла и установка зависимостей)
 download_node() {
+  # Проверяем, существует ли объект с именем "$HOME/pipe", и если да, то является ли он директорией
+  if [ -e "$HOME/pipe" ] && [ ! -d "$HOME/pipe" ]; then
+    echo -e "${RED}Ошибка: '$HOME/pipe' существует, но не является директорией. Пожалуйста, удалите или переименуйте его и повторите попытку.${NC}"
+    return 1
+  fi
+
   if [ -d "$HOME/pipe" ]; then
     echo "Папка 'pipe' уже существует. Удалите ноду и установите заново. Выход..."
     return 0
@@ -23,8 +29,9 @@ download_node() {
   echo -e "${GREEN}Установка зависимостей завершена.${NC}"
   echo -e "Начинаем установку ноды Pipe...\n"
 
-  mkdir -p "$HOME/pipe/download_cache"
-  cd "$HOME/pipe" || exit
+  # Создаём директорию для ноды и кэша
+  mkdir -p "$HOME/pipe/download_cache" || { echo -e "${RED}Не удалось создать директорию $HOME/pipe/download_cache${NC}"; return 1; }
+  cd "$HOME/pipe" || { echo -e "${RED}Не удалось перейти в директорию $HOME/pipe${NC}"; return 1; }
 
   echo -e "${YELLOW}Скачиваем бинарный файл ноды...${NC}"
   wget https://dl.pipecdn.app/v0.2.2/pop -O pop
@@ -41,7 +48,7 @@ launch_node() {
     screen -S pipe -X quit
   fi
 
-  cd "$HOME/pipe" || exit
+  cd "$HOME/pipe" || { echo -e "${RED}Директория $HOME/pipe не найдена. Установите ноду (пункт 1).${NC}"; return 1; }
 
   # Создаём новую сессию screen с именем "pipe"
   screen -dmS pipe
@@ -76,7 +83,7 @@ launch_node() {
   echo -e "${GREEN}Нода успешно запущена!${NC}"
 }
 
-# Функция для просмотра логов (делает hardcopy текущей сессии screen)
+# Функция для просмотра логов (создаёт hardcopy текущей сессии screen)
 node_logs() {
   if screen -list | grep -q "pipe"; then
     screen -S pipe -X hardcopy /tmp/pipe_logs.txt
